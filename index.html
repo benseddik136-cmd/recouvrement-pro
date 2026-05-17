@@ -553,12 +553,6 @@ function bindKeepFocus(){
 
 document.getElementById("dd").textContent=new Date().toLocaleDateString("fr-MA",{day:"2-digit",month:"2-digit",year:"numeric"});
 
-async function syncManuel() {
-  var btn = document.getElementById("syncBtn");
-  if(btn){ btn.textContent = "⏳..."; btn.disabled = true; }
-  await syncBC();
-  if(btn){ btn.textContent = "🔄 Sync"; btn.disabled = false; }
-}
 
 async function syncBC() {
   try {
@@ -600,6 +594,13 @@ async function syncBC() {
 }
 
 render();
+async function syncManuel() {
+  var btn = document.getElementById("syncBtn");
+  if(btn){ btn.textContent = "⏳..."; btn.disabled = true; }
+  await syncBC();
+  if(btn){ btn.textContent = "🔄 Sync"; btn.disabled = false; }
+}
+
 syncBC();
 </script>
 </body>
