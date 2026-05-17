@@ -20,7 +20,8 @@ module.exports = async function(req, res) {
         .filter(c => c.displayName && c.displayName.trim() !== '')
         .map(c => ({
           nom: c.displayName,
-          total: parseFloat(c.balanceDue) || 0
+          total: parseFloat(c.balanceDue) || 0,
+          vendeur: c.salespersonCode || "NON AFFECTÉ"
         }))
         .filter(c => c.total !== 0)
         .sort((a, b) => b.total - a.total);

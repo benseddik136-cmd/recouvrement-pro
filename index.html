@@ -160,7 +160,7 @@ function load(){
 }
 function save(){try{localStorage.setItem(SK,JSON.stringify(S.cl));}catch(e){}}
 
-var S={cl:load(),tab:"dash",did:null,q:"",fst:"Tous",fp:"Tous"};
+var S={cl:load(),tab:"dash",did:null,q:"",fst:"Tous",fp:"Tous",fv:"Tous"};
 
 var TOTAL_CREANCES=0;
 var OBJECTIF=TOTAL_CREANCES*0.6;
@@ -297,6 +297,7 @@ function rClients(){
     if(q&&!c.nom.toLowerCase().includes(q))return false;
     if(S.fst!=="Tous"&&c.st!==S.fst)return false;
     if(S.fp!=="Tous"&&prio(c.total,c.rec).lbl!==S.fp)return false;
+    if(S.fv!=="Tous"&&(c.vendeur||"NON AFFECTÉ")!==S.fv)return false;
     return true;
   });
 
@@ -305,6 +306,8 @@ function rClients(){
     '<button onclick="showAddClient()" style="background:var(--blue);color:#fff;border:none;border-radius:var(--r2);padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer">+ Ajouter</button></div>'+
     '<div class="srch-wrap"><input class="srch" id="si" placeholder="🔍 Rechercher..." value="'+S.q+'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>'+
     '<div class="chips">'+["Tous",...STLIST].map(function(s){return '<button class="chip'+(S.fst===s?' on':'')+'" data-st="'+s+'" onclick="fltSt(this)">'+s+'</button>';}).join("")+'</div>'+
+    '<div style="font-size:11px;color:var(--text2);margin-bottom:4px;font-weight:600">Vendeur</div>'+
+    '<div class="chips" id="chipVendeur">'+getVendeurs().map(function(v){return '<button class="chip'+(S.fv===v?' onp':'')+'" data-vd="'+v+'" onclick="fltVd(this)">'+v+'</button>';}).join("")+'</div>'+
     '<div class="chips">'+["Tous","Critique","Haute","Moyenne","Standard"].map(function(p){return '<button class="chip'+(S.fp===p?' onp':'')+'" data-pr="'+p+'" onclick="fltPr(this)">'+p+'</button>';}).join("")+'</div>'+
     '<div style="font-size:12px;color:var(--text3);margin-bottom:9px">'+fil.length+' client(s)</div>';
 
@@ -316,6 +319,7 @@ function rClients(){
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'+
       '<div style="flex:1;min-width:0"><div class="cn">'+c.nom+'</div>'+
       '<div class="cm">Dû: <b>'+fs(rest)+'</b> / '+fs(c.total)+' MAD</div>'+
+      '<div style="font-size:11px;color:var(--blue-light);margin-top:1px">👤 '+(c.vendeur||"NON AFFECTÉ")+'</div>'+
       (c.prev>0?'<div class="cpv">Promesse: '+fs(c.prev)+' MAD</div>':'')+
       '</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+
       '<span class="bdg '+sc+'">'+c.st+'</span><span class="bdg '+p.bc+'">'+p.dot+' '+p.lbl+'</span></div></div>'+
@@ -374,6 +378,15 @@ function rImport(){
 }
 
 // Actions
+function getVendeurs(){
+  var v=["Tous"];
+  S.cl.forEach(function(c){
+    var vd=c.vendeur||"NON AFFECTÉ";
+    if(v.indexOf(vd)===-1)v.push(vd);
+  });
+  return v.sort();
+}
+function fltVd(btn){S.fv=btn.getAttribute("data-vd");render();}
 function go(t){S.tab=t;S.did=null;render();}
 function od(id){S.did=id;S.tab="clients";render();}
 function uc(id,p){S.cl=S.cl.map(function(c){return c.id===id?Object.assign({},c,p):c;});save();render();}
@@ -498,12 +511,14 @@ async function syncBC() {
         });
         if (existing) {
           existing.total = c.total;
+          existing.vendeur = c.vendeur || existing.vendeur || "NON AFFECTÉ";
           return existing;
         }
         return {
           id: Date.now() + i,
           nom: c.nom,
           total: c.total,
+          vendeur: c.vendeur || "NON AFFECTÉ",
           rec: 0,
           prev: 0,
           st: "En attente",
