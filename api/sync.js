@@ -1,3 +1,7 @@
+const { Redis } = require('@upstash/redis');
+
+const redis = Redis.fromEnv();
+
 module.exports = async function(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
@@ -21,10 +25,26 @@ module.exports = async function(req, res) {
         .filter(c => c.total !== 0)
         .sort((a, b) => b.total - a.total);
 
+      await redis.set('clients', JSON.stringify(result));
+
       return res.status(200).json({ 
         success: true, 
-        clients: result, 
+        count: result.length,
         updated: new Date().toISOString() 
+      });
+    } catch (e) {
+      return res.status(400).json({ error: e.message });
+    }
+  }
+
+  if (req.method === 'GET') {
+    try {
+      const data = await redis.get('clients');
+      const clients = data ? JSON.parse(data) : [];
+      return res.status(200).json({ 
+        success: true, 
+        clients: clients,
+        updated: new Date().toISOString()
       });
     } catch (e) {
       return res.status(400).json({ error: e.message });
