@@ -574,5 +574,71 @@ function bindKeepFocus(){
 document.getElementById("dd").textContent=new Date().toLocaleDateString("fr-MA",{day:"2-digit",month:"2-digit",year:"numeric"});
 render();
 </script>
+
+<script>
+async function syncBusinessCentral() {
+
+  try {
+
+    const response = await fetch(
+      'https://willowy-sherbet-b19e95.netlify.app/.netlify/functions/sync'
+    );
+
+    const data = await response.json();
+
+    console.log('Business Central Data:', data);
+
+    if (!Array.isArray(data) || data.length === 0) {
+      console.log('Aucune donnée reçue');
+      return;
+    }
+
+    S.cl = data.map((item, index) => {
+
+      return {
+        id: index + 1,
+
+        nom:
+          item.Customer_Name ||
+          item.CustomerName ||
+          item.Name ||
+          'CLIENT',
+
+        total:
+          parseFloat(
+            item.Remaining_Amount ||
+            item.Amount ||
+            item.Balance ||
+            0
+          ) || 0,
+
+        rec: 0,
+        prev: 0,
+        st: 'En attente',
+        note: ''
+      };
+
+    });
+
+    save();
+    render();
+
+    console.log('Dashboard synchronisé avec Business Central');
+
+  } catch (err) {
+
+    console.error('Erreur synchronisation BC:', err);
+
+  }
+
+}
+
+syncBusinessCentral();
+
+setInterval(syncBusinessCentral, 60000);
+
+</script>
+
 </body>
 </html>
+```

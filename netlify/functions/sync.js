@@ -1,49 +1,52 @@
-exports.handler = async function(event, context) {
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, GET, OPTIONS'
-  };
+let latestData = [];
 
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers, body: '' };
+exports.handler = async (event) => {
+
+  if (event.httpMethod === "GET") {
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(latestData)
+    };
   }
 
-  if (event.httpMethod === 'POST') {
+  if (event.httpMethod === "POST") {
     try {
+
       const data = JSON.parse(event.body);
-      const clients = data.value || [];
-      
-      const result = clients
-        .filter(c => c.displayName && c.displayName.trim() !== '')
-        .map(c => ({
-          nom: c.displayName,
-          total: parseFloat(c.balanceDue) || 0
-        }))
-        .filter(c => c.total !== 0)
-        .sort((a, b) => b.total - a.total);
+
+      latestData = data.value || data;
 
       return {
         statusCode: 200,
-        headers,
-        body: JSON.stringify({ 
-          success: true, 
-          clients: result, 
-          updated: new Date().toISOString() 
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          success: true,
+          records: latestData.length
         })
       };
-    } catch (e) {
+
+    } catch (err) {
+
       return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: e.message })
+        statusCode: 500,
+        body: JSON.stringify({
+          error: err.message
+        })
       };
+
     }
   }
 
   return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify({ message: 'Sync endpoint ready' })
+    statusCode: 405,
+    body: "Method Not Allowed"
   };
+
 };
