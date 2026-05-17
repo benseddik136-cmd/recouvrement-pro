@@ -2,6 +2,23 @@ const { Redis } = require('@upstash/redis');
 
 const redis = Redis.fromEnv();
 
+const VENDEURS = {
+  "1": "REPRESENTANT 1",
+  "2": "MR DAAL MOHAMED",
+  "3": "MR BENSEDDIK ZAKARIA",
+  "4": "MR NACIRI MOHAMED",
+  "5": "MME MOUTAFARRIJ KHADIJA",
+  "6": "MR NABIL EL BAKKAL",
+  "7": "MOHAMED SEBBAR",
+  "8": "MR HAROU MOUHCINE",
+  "9": "MEHDI LAGNAOUI",
+  "10": "MR LAKHAL ABDELLAH",
+  "11": "CONTENTIEUX",
+  "12": "SABRANE ZAKARIA",
+  "13": "TAYEB CHRAIBI",
+  "15": "LABIAD ANAS"
+};
+
 module.exports = async function(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
@@ -21,7 +38,7 @@ module.exports = async function(req, res) {
         .map(c => ({
           nom: c.displayName,
           total: parseFloat(c.balanceDue) || 0,
-          vendeur: c.salespersonCode || "NON AFFECTÉ"
+          vendeur: VENDEURS[String(c.salespersonCode)] || c.salespersonCode || "NON AFFECTÉ"
         }))
         .filter(c => c.total !== 0)
         .sort((a, b) => b.total - a.total);
