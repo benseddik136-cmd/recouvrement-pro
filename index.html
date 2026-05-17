@@ -139,6 +139,7 @@ textarea.inp{resize:none;min-height:68px}
   <nav class="nav">
     <button class="nb on" data-t="dash" onclick="go('dash')"><div class="ni">📊</div><div class="nl">Dashboard</div><div class="nd"></div></button>
     <button class="nb" data-t="clients" onclick="go('clients')"><div class="ni">👥</div><div class="nl">Clients</div><div class="nd"></div></button>
+    <button class="nb" data-t="filtres" onclick="go('filtres')"><div class="ni">🔍</div><div class="nl">Filtres</div><div class="nd"></div></button>
     <button class="nb" data-t="import" onclick="go('import')"><div class="ni">📥</div><div class="nl">Import</div><div class="nd"></div></button>
   </nav>
   <div id="modal" style="display:none"></div>
@@ -161,6 +162,8 @@ function load(){
 }
 function save(){try{localStorage.setItem(SK,JSON.stringify(S.cl));}catch(e){}}
 
+var MOIS=["Tous","Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+var MOIS_NUM={"Janvier":1,"Février":2,"Mars":3,"Avril":4,"Mai":5,"Juin":6,"Juillet":7,"Août":8,"Septembre":9,"Octobre":10,"Novembre":11,"Décembre":12};
 var VENDEURS={
   "1":"REPRESENTANT 1",
   "2":"MR DAAL MOHAMED",
@@ -177,7 +180,7 @@ var VENDEURS={
   "13":"TAYEB CHRAIBI",
   "15":"LABIAD ANAS"
 };
-var S={cl:load(),tab:"dash",did:null,q:"",fst:"Tous",fp:"Tous",fv:"Tous"};
+var S={cl:load(),tab:"dash",did:null,q:"",fst:"Tous",fp:"Tous",fv:"Tous",fm:"Tous"};
 
 var TOTAL_CREANCES=0;
 var OBJECTIF=TOTAL_CREANCES*0.6;
@@ -207,7 +210,7 @@ var STLIST=["En attente","Promesse","Recouvré","Litigieux"];
 function met(){
   TOTAL_CREANCES=S.cl.filter(function(x){return x.total>0;}).reduce(function(s,x){return s+x.total;},0);
   OBJECTIF=TOTAL_CREANCES*0.6;
-  var cl=S.cl.filter(function(x){return x.total>0;});
+  var cl=getClientsFiltres().filter(function(x){return x.total>0;});
   var tr=cl.reduce(function(s,x){return s+x.rec+(x.st==="Promesse"?x.prev:0);},0);
   var tp=cl.reduce(function(s,x){return s+x.prev;},0);
   // Progress vs objectif (objectif = 100%)
@@ -228,7 +231,7 @@ function render(){
   var b=document.getElementById("body");
   var top=b.scrollTop;
   if(S.tab==="clients"&&S.did){b.innerHTML=rDetail();}
-  else{var v={dash:rDash,clients:rClients,import:rImport};b.innerHTML=(v[S.tab]||rDash)();}
+  else{var v={dash:rDash,clients:rClients,filtres:rFiltres,import:rImport};b.innerHTML=(v[S.tab]||rDash)();}
   document.querySelectorAll(".nb").forEach(function(x){x.classList.toggle("on",x.dataset.t===S.tab);});
   b.scrollTop=(S.tab==="clients"&&S.did)?0:top;
   bind();
@@ -244,7 +247,7 @@ function rDash(){
   var promList=S.cl.filter(function(c){return c.st==="Promesse";});
 
   return '<div class="hero">'+
-    '<div class="hl">Total créances • 30/04/2026</div>'+
+    '<div class="hl">Total créances • 30/04/2026'+(S.fv!="Tous"?' • 👤 '+S.fv:'')+(S.fm!="Tous"?' • 📅 '+S.fm:'')+'</div>'+
     '<div class="ha">'+fs(m.tc)+' MAD</div>'+
     '<div class="hs">Objectif 60% → '+fs(m.ob)+' MAD</div>'+
     '<div class="pw"><div class="pr"><span>🔵 Recouvré</span><b>'+m.pp.toFixed(1)+'% de l\'objectif</b></div>'+
@@ -404,6 +407,39 @@ function getVendeurs(){
   return v.sort();
 }
 function fltVd(btn){S.fv=btn.getAttribute("data-vd");render();}
+function rFiltres(){
+  var vlist = Object.values(VENDEURS);
+  vlist.sort();
+  return '<div class="card" style="margin-bottom:14px">'+
+    '<div class="st" style="margin-bottom:12px">👤 Filtre par Vendeur</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+    ['Tous'].concat(vlist).map(function(v){
+      var sel = S.fv===v;
+      return '<button onclick="S.fv=''+v.replace(/'/g,"\'")+''  ;render()" style="background:'+(sel?'var(--blue)':'var(--surf2)')+';color:'+(sel?'#fff':'var(--text2)')+';border:1px solid '+(sel?'var(--blue)':'var(--border)')+';border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;text-align:left">'+v+'</button>';
+    }).join("")+
+    '</div></div>'+
+    '<div class="card">'+
+    '<div class="st" style="margin-bottom:12px">📅 Filtre par Mois (2026)</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
+    MOIS.map(function(m){
+      var sel = S.fm===m;
+      return '<button onclick="S.fm=''+m+'';render()" style="background:'+(sel?'var(--blue)':'var(--surf2)')+';color:'+(sel?'#fff':'var(--text2)')+';border:1px solid '+(sel?'var(--blue)':'var(--border)')+';border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer">'+m+'</button>';
+    }).join("")+
+    '</div></div>'+
+    '<div class="card" style="margin-top:14px;background:var(--surf2)">'+
+    '<div style="font-size:13px;color:var(--text2)">Vendeur sélectionné : <b style="color:var(--blue-light)">'+S.fv+'</b></div>'+
+    '<div style="font-size:13px;color:var(--text2);margin-top:4px">Mois sélectionné : <b style="color:var(--amber)">'+S.fm+'</b></div>'+
+    '<button onclick="S.fv='Tous';S.fm='Tous';render()" style="background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;margin-top:10px;width:100%">🗑️ Réinitialiser filtres</button>'+
+    '</div>';
+}
+
+function getClientsFiltres(){
+  return S.cl.filter(function(c){
+    if(S.fv!=="Tous" && (c.vendeur||"NON AFFECTÉ")!==S.fv) return false;
+    return true;
+  });
+}
+
 function go(t){S.tab=t;S.did=null;render();}
 function od(id){S.did=id;S.tab="clients";render();}
 function uc(id,p){S.cl=S.cl.map(function(c){return c.id===id?Object.assign({},c,p):c;});save();render();}
@@ -499,7 +535,7 @@ function bind(){
 function renderKeepFocus(){
   var b=document.getElementById("body");
   var top=b.scrollTop;
-  var v={dash:rDash,clients:rClients,import:rImport};
+  var v={dash:rDash,clients:rClients,filtres:rFiltres,import:rImport};
   b.innerHTML=(v[S.tab]||rDash)();
   b.scrollTop=top;
   bindKeepFocus();
