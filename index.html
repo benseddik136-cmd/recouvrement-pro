@@ -244,13 +244,11 @@ function load(){
       return saved;
     }
   }catch(e){}
-return [];
+  return [];
 }
 function save(){try{localStorage.setItem(SK,JSON.stringify(S.cl));}catch(e){}}
 
-localStorage.removeItem(SK);
-
-var S={cl:[],tab:"dash",did:null,q:"",fst:"Tous",fp:"Tous"};
+var S={cl:load(),tab:"dash",did:null,q:"",fst:"Tous",fp:"Tous"};
 
 var TOTAL_CREANCES=82762008.23;
 var OBJECTIF=TOTAL_CREANCES*0.6; // 49,657,204.94
@@ -574,72 +572,45 @@ function bindKeepFocus(){
 }
 
 document.getElementById("dd").textContent=new Date().toLocaleDateString("fr-MA",{day:"2-digit",month:"2-digit",year:"numeric"});
-</script>
 
-<script>
-async function syncBusinessCentral() {
-
+async function syncBC() {
   try {
-
-    const response = await fetch(
-      'https://willowy-sherbet-b19e95.netlify.app/.netlify/functions/sync'
-    );
-
-    const data = await response.json();
-
-    console.log('Business Central Data:', data);
-
-if (!Array.isArray(data) || data.length === 0) {
-  console.log('Aucune donnée reçue');
-  return;
-}
-
-S.cl = data.map((item, index) => {
-
-      return {
-        id: index + 1,
-
-        nom:
-          item.Customer_Name ||
-          item.CustomerName ||
-          item.Name ||
-          'CLIENT',
-
-        total:
-          parseFloat(
-            item.Remaining_Amount ||
-            item.Amount ||
-            item.Balance ||
-            0
-          ) || 0,
-
-        rec: 0,
-        prev: 0,
-        st: 'En attente',
-        note: ''
-      };
-
-    });
-
-    save();
+    const res = await fetch('/api/sync');
+    const data = await res.json();
+    if (data.clients && data.clients.length > 0) {
+      var newClients = data.clients.map(function(c, i) {
+        var existing = S.cl.find(function(x){ 
+          return x.nom.toLowerCase().trim() === c.nom.toLowerCase().trim(); 
+        });
+        if (existing) {
+          existing.total = c.total;
+          return existing;
+        }
+        return {
+          id: Date.now() + i,
+          nom: c.nom,
+          total: c.total,
+          rec: 0,
+          prev: 0,
+          st: "En attente",
+          note: ""
+        };
+      });
+      S.cl = newClients;
+      save();
+      render();
+      console.log('BC sync OK:', data.clients.length, 'clients');
+    } else {
+      render();
+    }
+  } catch(e) {
+    console.log('Sync error:', e);
     render();
-
-    console.log('Dashboard synchronisé avec Business Central');
-
-  } catch (err) {
-
-    console.error('Erreur synchronisation BC:', err);
-
   }
-
 }
 
-syncBusinessCentral();
-
-setInterval(syncBusinessCentral, 60000);
-
+render();
+syncBC();
 </script>
-
 </body>
 </html>
-```
