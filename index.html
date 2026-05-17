@@ -160,6 +160,22 @@ function load(){
 }
 function save(){try{localStorage.setItem(SK,JSON.stringify(S.cl));}catch(e){}}
 
+var VENDEURS={
+  "1":"REPRESENTANT 1",
+  "2":"MR DAAL MOHAMED",
+  "3":"MR BENSEDDIK ZAKARIA",
+  "4":"MR NACIRI MOHAMED",
+  "5":"MME MOUTAFARRIJ KHADIJA",
+  "6":"MR NABIL EL BAKKAL",
+  "7":"MOHAMED SEBBAR",
+  "8":"MR HAROU MOUHCINE",
+  "9":"MEHDI LAGNAOUI",
+  "10":"MR LAKHAL ABDELLAH",
+  "11":"CONTENTIEUX",
+  "12":"SABRANE ZAKARIA",
+  "13":"TAYEB CHRAIBI",
+  "15":"LABIAD ANAS"
+};
 var S={cl:load(),tab:"dash",did:null,q:"",fst:"Tous",fp:"Tous",fv:"Tous"};
 
 var TOTAL_CREANCES=0;
@@ -518,7 +534,7 @@ async function syncBC() {
           id: Date.now() + i,
           nom: c.nom,
           total: c.total,
-          vendeur: c.vendeur || "NON AFFECTÉ",
+          vendeur: VENDEURS[c.vendeur] || c.vendeur || "NON AFFECTÉ",
           rec: 0,
           prev: 0,
           st: "En attente",
