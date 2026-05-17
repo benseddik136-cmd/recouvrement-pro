@@ -145,7 +145,7 @@ textarea.inp{resize:none;min-height:68px}
   <div id="modal" style="display:none"></div>
 </div>
 <script>
-var SK="rec_v9";
+var SK="rec_v10";
 var ALL_CLIENTS=[];
 
 function dc(c){return Object.assign({},c,{rec:0,prev:0,st:"En attente",note:""});}
@@ -566,19 +566,20 @@ async function syncBC() {
     const data = await res.json();
     if (data.clients && data.clients.length > 0) {
       var newClients = data.clients.map(function(c, i) {
+        var vendeurNom = c.vendeur || "NON AFFECTÉ";
         var existing = S.cl.find(function(x){ 
           return x.nom.toLowerCase().trim() === c.nom.toLowerCase().trim(); 
         });
         if (existing) {
           existing.total = c.total;
-          existing.vendeur = VENDEURS[String(c.vendeur)] || c.vendeur || existing.vendeur || "NON AFFECTÉ";
+          existing.vendeur = vendeurNom;
           return existing;
         }
         return {
           id: Date.now() + i,
           nom: c.nom,
           total: c.total,
-          vendeur: VENDEURS[String(c.vendeur)] || c.vendeur || "NON AFFECTÉ",
+          vendeur: vendeurNom,
           rec: 0,
           prev: 0,
           st: "En attente",
