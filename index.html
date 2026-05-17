@@ -208,9 +208,10 @@ var SCL={"En attente":"b-gry","Promesse":"b-amb","Recouvré":"b-grn","Litigieux"
 var STLIST=["En attente","Promesse","Recouvré","Litigieux"];
 
 function met(){
-  TOTAL_CREANCES=S.cl.filter(function(x){return x.total>0;}).reduce(function(s,x){return s+x.total;},0);
+  var allCl=getClientsFiltres().filter(function(x){return x.total>0;});
+  TOTAL_CREANCES=allCl.reduce(function(s,x){return s+x.total;},0);
   OBJECTIF=TOTAL_CREANCES*0.6;
-  var cl=getClientsFiltres().filter(function(x){return x.total>0;});
+  var cl=allCl;
   var tr=cl.reduce(function(s,x){return s+x.rec+(x.st==="Promesse"?x.prev:0);},0);
   var tp=cl.reduce(function(s,x){return s+x.prev;},0);
   // Progress vs objectif (objectif = 100%)
