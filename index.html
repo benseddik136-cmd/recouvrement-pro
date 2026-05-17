@@ -133,6 +133,7 @@ textarea.inp{resize:none;min-height:68px}
   <div class="topbar">
     <span class="brand">Recouvrement Pro</span>
     <span class="ddate" id="dd"></span>
+    <button onclick="syncManuel()" id="syncBtn" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer">🔄 Sync</button>
   </div>
   <div class="body" id="body"></div>
   <nav class="nav">
@@ -143,7 +144,7 @@ textarea.inp{resize:none;min-height:68px}
   <div id="modal" style="display:none"></div>
 </div>
 <script>
-var SK="rec_v7";
+var SK="rec_v9";
 var ALL_CLIENTS=[];
 
 function dc(c){return Object.assign({},c,{rec:0,prev:0,st:"En attente",note:""});}
@@ -516,6 +517,13 @@ function bindKeepFocus(){
 
 document.getElementById("dd").textContent=new Date().toLocaleDateString("fr-MA",{day:"2-digit",month:"2-digit",year:"numeric"});
 
+async function syncManuel() {
+  var btn = document.getElementById("syncBtn");
+  if(btn){ btn.textContent = "⏳..."; btn.disabled = true; }
+  await syncBC();
+  if(btn){ btn.textContent = "🔄 Sync"; btn.disabled = false; }
+}
+
 async function syncBC() {
   try {
     const res = await fetch('/api/sync');
@@ -527,14 +535,14 @@ async function syncBC() {
         });
         if (existing) {
           existing.total = c.total;
-          existing.vendeur = c.vendeur || existing.vendeur || "NON AFFECTÉ";
+          existing.vendeur = VENDEURS[String(c.vendeur)] || c.vendeur || existing.vendeur || "NON AFFECTÉ";
           return existing;
         }
         return {
           id: Date.now() + i,
           nom: c.nom,
           total: c.total,
-          vendeur: VENDEURS[c.vendeur] || c.vendeur || "NON AFFECTÉ",
+          vendeur: VENDEURS[String(c.vendeur)] || c.vendeur || "NON AFFECTÉ",
           rec: 0,
           prev: 0,
           st: "En attente",
