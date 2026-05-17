@@ -415,7 +415,7 @@ function rFiltres(){
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
     ['Tous'].concat(vlist).map(function(v){
       var sel = S.fv===v;
-      return '<button onclick="S.fv=''+v.replace(/'/g,"\'")+''  ;render()" style="background:'+(sel?'var(--blue)':'var(--surf2)')+';color:'+(sel?'#fff':'var(--text2)')+';border:1px solid '+(sel?'var(--blue)':'var(--border)')+';border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;text-align:left">'+v+'</button>';
+      return '<button data-vv="'+encodeURIComponent(v)+'" onclick="selVendeur(this)" style="background:'+(sel?'var(--blue)':'var(--surf2)')+';color:'+(sel?'#fff':'var(--text2)')+';border:1px solid '+(sel?'var(--blue)':'var(--border)')+';border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;text-align:left">'+v+'</button>';
     }).join("")+
     '</div></div>'+
     '<div class="card">'+
@@ -423,13 +423,13 @@ function rFiltres(){
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
     MOIS.map(function(m){
       var sel = S.fm===m;
-      return '<button onclick="S.fm=''+m+'';render()" style="background:'+(sel?'var(--blue)':'var(--surf2)')+';color:'+(sel?'#fff':'var(--text2)')+';border:1px solid '+(sel?'var(--blue)':'var(--border)')+';border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer">'+m+'</button>';
+      return '<button data-mm="'+m+'" onclick="selMois(this)" style="background:'+(sel?'var(--blue)':'var(--surf2)')+';color:'+(sel?'#fff':'var(--text2)')+';border:1px solid '+(sel?'var(--blue)':'var(--border)')+';border-radius:8px;padding:10px;font-size:12px;font-weight:600;cursor:pointer">'+m+'</button>';
     }).join("")+
     '</div></div>'+
     '<div class="card" style="margin-top:14px;background:var(--surf2)">'+
-    '<div style="font-size:13px;color:var(--text2)">Vendeur sélectionné : <b style="color:var(--blue-light)">'+S.fv+'</b></div>'+
-    '<div style="font-size:13px;color:var(--text2);margin-top:4px">Mois sélectionné : <b style="color:var(--amber)">'+S.fm+'</b></div>'+
-    '<button onclick="S.fv='Tous';S.fm='Tous';render()" style="background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;margin-top:10px;width:100%">🗑️ Réinitialiser filtres</button>'+
+    '<div style="font-size:13px;color:var(--text2)">Vendeur : <b style="color:var(--blue-light)">'+S.fv+'</b></div>'+
+    '<div style="font-size:13px;color:var(--text2);margin-top:4px">Mois : <b style="color:var(--amber)">'+S.fm+'</b></div>'+
+    '<button onclick="S.fv=\'Tous\';S.fm=\'Tous\';render()" style="background:var(--red);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;margin-top:10px;width:100%">🗑️ Réinitialiser</button>'+
     '</div>';
 }
 
@@ -440,6 +440,14 @@ function getClientsFiltres(){
   });
 }
 
+function selVendeur(btn){
+  S.fv = decodeURIComponent(btn.getAttribute("data-vv"));
+  render();
+}
+function selMois(btn){
+  S.fm = btn.getAttribute("data-mm");
+  render();
+}
 function go(t){S.tab=t;S.did=null;render();}
 function od(id){S.did=id;S.tab="clients";render();}
 function uc(id,p){S.cl=S.cl.map(function(c){return c.id===id?Object.assign({},c,p):c;});save();render();}
@@ -556,13 +564,15 @@ document.getElementById("dd").textContent=new Date().toLocaleDateString("fr-MA",
 
 async function syncBC() {
   try {
-    const res = await fetch('/api/sync');
-    const data = await res.json();
+    var url = window.location.origin + '/api/sync';
+    var res = await fetch(url);
+    var text = await res.text();
+    var data = JSON.parse(text);
     if (data.clients && data.clients.length > 0) {
-      var newClients = data.clients.map(function(c, i) {
+      S.cl = data.clients.map(function(c, i) {
         var vendeurNom = c.vendeur || "NON AFFECTÉ";
         var existing = S.cl.find(function(x){ 
-          return x.nom.toLowerCase().trim() === c.nom.toLowerCase().trim(); 
+          return x.nom && c.nom && x.nom.toLowerCase().trim() === c.nom.toLowerCase().trim(); 
         });
         if (existing) {
           existing.total = c.total;
@@ -570,7 +580,7 @@ async function syncBC() {
           return existing;
         }
         return {
-          id: Date.now() + i,
+          id: i + 1,
           nom: c.nom,
           total: c.total,
           vendeur: vendeurNom,
@@ -580,15 +590,12 @@ async function syncBC() {
           note: ""
         };
       });
-      S.cl = newClients;
       save();
       render();
-      console.log('BC sync OK:', data.clients.length, 'clients');
     } else {
       render();
     }
   } catch(e) {
-    console.log('Sync error:', e);
     render();
   }
 }
