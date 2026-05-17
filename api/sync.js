@@ -25,7 +25,7 @@ module.exports = async function(req, res) {
         .filter(c => c.total !== 0)
         .sort((a, b) => b.total - a.total);
 
-      await redis.set('clients', JSON.stringify(result));
+      await redis.set('clients', result);
 
       return res.status(200).json({ 
         success: true, 
@@ -39,8 +39,7 @@ module.exports = async function(req, res) {
 
   if (req.method === 'GET') {
     try {
-      const data = await redis.get('clients');
-      const clients = data ? JSON.parse(data) : [];
+      const clients = await redis.get('clients') || [];
       return res.status(200).json({ 
         success: true, 
         clients: clients,
