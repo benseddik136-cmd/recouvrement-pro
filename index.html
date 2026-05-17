@@ -144,95 +144,7 @@ textarea.inp{resize:none;min-height:68px}
 </div>
 <script>
 var SK="rec_v7";
-var ALL_CLIENTS=[
-  {id:1,nom:"JET CONTRACTORS",total:16768778.70},
-  {id:2,nom:"MARCONT STRUCTURES",total:12315000.00},
-  {id:3,nom:"SAID BELHAJ",total:8724126.82},
-  {id:4,nom:"ESPACE METAUX DU MAROC",total:5949622.05},
-  {id:5,nom:"KADIRI HOUCEINE",total:4320832.51},
-  {id:6,nom:"SOTAFER",total:4237071.32},
-  {id:7,nom:"KIT MATERIAUX",total:3129283.63},
-  {id:8,nom:"NOUSSI KHALID",total:2151176.61},
-  {id:9,nom:"INTEC BATI",total:2100256.10},
-  {id:10,nom:"META PUB",total:2063989.20},
-  {id:11,nom:"ATELIER METALLURGIQUE OUSAMO FRERES",total:2047645.63},
-  {id:12,nom:"JBILI HOUSSEIN",total:1977242.62},
-  {id:13,nom:"AHEDOUNE HAMZA",total:1627397.64},
-  {id:14,nom:"AIT MELLOUL METAL",total:1621883.56},
-  {id:15,nom:"KETI SARL",total:1591518.01},
-  {id:16,nom:"PLUMAG",total:1573760.80},
-  {id:17,nom:"ETS ASSMELLAL",total:1123081.98},
-  {id:18,nom:"TGCC",total:1096305.44},
-  {id:19,nom:"AGATOLE SARL",total:1037010.00},
-  {id:20,nom:"KADIRI AHMED",total:990778.34},
-  {id:21,nom:"LUXUS METAL",total:861549.20},
-  {id:22,nom:"MOUHSSIN FER",total:674401.01},
-  {id:23,nom:"EL KASMI OMAR",total:673088.90},
-  {id:24,nom:"H2M POLES",total:561996.00},
-  {id:25,nom:"SADET",total:553766.40},
-  {id:26,nom:"ATELIER INDUSTRIEL CHERIFIEN A.I.C",total:543434.40},
-  {id:27,nom:"TANGISTEEL",total:498086.00},
-  {id:28,nom:"EL WALID WORLD SERVICES",total:462048.00},
-  {id:29,nom:"COMPANIANORTH",total:458080.00},
-  {id:30,nom:"SILL SOUSS",total:396028.03},
-  {id:31,nom:"BELHAJ EL MOKHTAR",total:390267.09},
-  {id:32,nom:"MIDI FER",total:384298.00},
-  {id:33,nom:"M & L ENGINEERING",total:355041.60},
-  {id:34,nom:"TIFRMIT ACIER",total:291118.40},
-  {id:35,nom:"BESBASSI DES TRAVAUX METAL",total:282763.20},
-  {id:36,nom:"MAHBOUB FER",total:269069.00},
-  {id:37,nom:"MAC STEEL SARL",total:252624.41},
-  {id:38,nom:"NEW PREFA BATIMENT",total:238464.00},
-  {id:39,nom:"PINTAPLANA MAROC",total:180011.40},
-  {id:40,nom:"LUX LIGHTING",total:178308.00},
-  {id:41,nom:"GO PROFILS",total:150770.98},
-  {id:42,nom:"KHOUCHAR",total:138552.00},
-  {id:43,nom:"ENTREPRISE HACHANI SARL",total:104784.00},
-  {id:44,nom:"NEW SIGNALISATION ROUTIERE",total:98878.80},
-  {id:45,nom:"ACI METAUX",total:90440.00},
-  {id:46,nom:"IBDAAE AZAKHRAFA",total:81000.00},
-  {id:47,nom:"TASSILA MATERIAUX",total:71544.00},
-  {id:48,nom:"MEGA POST TENSION",total:60871.20},
-  {id:49,nom:"TG STEEL",total:55416.00},
-  {id:50,nom:"BECOMAR",total:50784.00},
-  {id:51,nom:"BENELHOU FRERES",total:50203.20},
-  {id:52,nom:"GLOBAL INGENIERIE CONCEPTION INFRASTRUCTURES",total:37392.00},
-  {id:53,nom:"MAGHREB GRILLAGE",total:20000.00},
-  {id:54,nom:"GENERAL CONTRACTOR DEVELOPPEMENT",total:19255.61},
-  {id:55,nom:"CHENTOUF AHMED",total:13664.76},
-  {id:56,nom:"AIC METALLURGIE",total:3744.00},
-  {id:57,nom:"AVANTAGE BETON ET SERVICE",total:2851.20},
-  {id:58,nom:"HAMID SLAOUI",total:2049.60},
-  {id:59,nom:"DIBRI METAL",total:1380.00},
-  {id:60,nom:"SEA ENGINNERING",total:1017.39},
-  {id:61,nom:"ATLAS METAL",total:534.83},
-  {id:62,nom:"ROMA FER",total:507.01},
-  {id:63,nom:"HOMESENSE",total:300.00},
-  {id:64,nom:"ILYASS CHAFAA",total:200.00},
-  {id:65,nom:"MONTAGE INOX",total:199.02},
-  {id:66,nom:"AGHOUAR MOHAMED",total:100.01},
-  {id:67,nom:"STE SYSTHERM",total:-152.71},
-  {id:68,nom:"ACHARKI AZIBI MOHAMED",total:-230.82},
-  {id:69,nom:"UNION METAL",total:-270.00},
-  {id:70,nom:"HASSAN AMJOTE",total:-304.00},
-  {id:71,nom:"NOVA FER",total:-360.01},
-  {id:72,nom:"DAMANE PREFA",total:-1296.00},
-  {id:73,nom:"STE DE BATIMENT ET DE BETON MOULE",total:-2616.00},
-  {id:74,nom:"CATCHY COM",total:-3650.58},
-  {id:75,nom:"BETON TECHNOLOGY",total:-3888.00},
-  {id:76,nom:"SAGI CERAMICA",total:-6136.80},
-  {id:77,nom:"STE HNI DE TRAVAUX",total:-6574.01},
-  {id:78,nom:"ASTROMETAL",total:-9700.00},
-  {id:79,nom:"MAGINEER GMBH",total:-21227.40},
-  {id:80,nom:"ASSMELLAL STEEL",total:-29700.00},
-  {id:81,nom:"KASMI FER",total:-34423.53},
-  {id:82,nom:"DESAM MAROC Sarl",total:-37090.00},
-  {id:83,nom:"EL MAIMOUNI MOHAMED",total:-79947.99},
-  {id:84,nom:"MAHBOUB MOHAMED",total:-268981.50},
-  {id:85,nom:"SOMA METAUX",total:-440071.36},
-  {id:86,nom:"EL OUAFI HICHAM",total:-564431.17},
-  {id:87,nom:"CRET",total:-1734583.50}
-];
+var ALL_CLIENTS=[];
 
 function dc(c){return Object.assign({},c,{rec:0,prev:0,st:"En attente",note:""});}
 function load(){
@@ -250,8 +162,8 @@ function save(){try{localStorage.setItem(SK,JSON.stringify(S.cl));}catch(e){}}
 
 var S={cl:load(),tab:"dash",did:null,q:"",fst:"Tous",fp:"Tous"};
 
-var TOTAL_CREANCES=82762008.23;
-var OBJECTIF=TOTAL_CREANCES*0.6; // 49,657,204.94
+var TOTAL_CREANCES=0;
+var OBJECTIF=TOTAL_CREANCES*0.6;
 
 var fmt=function(n){return new Intl.NumberFormat("fr-MA",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0);};
 var fs=function(n){var a=Math.abs(n||0);if(a>=1e6)return (n/1e6).toFixed(1)+"M";if(a>=1e3)return (n/1e3).toFixed(0)+"K";return String(Math.round(n||0));};
@@ -276,6 +188,8 @@ var SCL={"En attente":"b-gry","Promesse":"b-amb","Recouvré":"b-grn","Litigieux"
 var STLIST=["En attente","Promesse","Recouvré","Litigieux"];
 
 function met(){
+  TOTAL_CREANCES=S.cl.filter(function(x){return x.total>0;}).reduce(function(s,x){return s+x.total;},0);
+  OBJECTIF=TOTAL_CREANCES*0.6;
   var cl=S.cl.filter(function(x){return x.total>0;});
   var tr=cl.reduce(function(s,x){return s+x.rec+(x.st==="Promesse"?x.prev:0);},0);
   var tp=cl.reduce(function(s,x){return s+x.prev;},0);
