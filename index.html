@@ -248,7 +248,9 @@ function load(){
 }
 function save(){try{localStorage.setItem(SK,JSON.stringify(S.cl));}catch(e){}}
 
-var S={cl:load(),tab:"dash",did:null,q:"",fst:"Tous",fp:"Tous"};
+localStorage.removeItem(SK);
+
+var S={cl:[],tab:"dash",did:null,q:"",fst:"Tous",fp:"Tous"};
 
 var TOTAL_CREANCES=82762008.23;
 var OBJECTIF=TOTAL_CREANCES*0.6; // 49,657,204.94
@@ -588,12 +590,12 @@ async function syncBusinessCentral() {
 
     console.log('Business Central Data:', data);
 
-    if (!Array.isArray(data) || data.length === 0) {
-      console.log('Aucune donnée reçue');
-      return;
-    }
+ if (!Array.isArray(data.clients) || data.clients.length === 0) {
+  console.log('Aucune donnée reçue');
+  return;
+}
 
-    S.cl = data.map((item, index) => {
+S.cl = data.clients.map((item, index) => {
 
       return {
         id: index + 1,
