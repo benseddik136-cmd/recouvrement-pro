@@ -244,7 +244,7 @@ function load(){
       return saved;
     }
   }catch(e){}
-  return ALL_CLIENTS.map(dc);
+return [];
 }
 function save(){try{localStorage.setItem(SK,JSON.stringify(S.cl));}catch(e){}}
 
