@@ -570,14 +570,40 @@ async function syncBC() {
     var text = await res.text();
     var data = JSON.parse(text);
     if (data.clients && data.clients.length > 0) {
+      // Determine mois key from filter (ex: "Mai 2026" -> "2026-05")
+      var MOIS_MAP = {"Jan":"01","Fév":"02","Mar":"03","Avr":"04","Mai":"05","Juin":"06","Juil":"07","Aoû":"08","Sep":"09","Oct":"10","Nov":"11","Déc":"12"};
+      var moisKey = null;
+      if (S.fm && S.fm !== "Tous") {
+        var parts = S.fm.split(" ");
+        if (parts.length === 2 && MOIS_MAP[parts[0]]) {
+          moisKey = parts[1] + "-" + MOIS_MAP[parts[0]];
+        }
+      }
+      // If no filter, use current month
+      if (!moisKey) {
+        var now = new Date();
+        moisKey = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0");
+      }
+
       S.cl = data.clients.map(function(c, i) {
         var vendeurNom = c.vendeur || "NON AFFECTÉ";
+        // Get paiement for selected month
+        var paiements = c.paiements || {};
+        var recBC = paiements[moisKey] || 0;
+
         var existing = S.cl.find(function(x){ 
           return x.nom && c.nom && x.nom.toLowerCase().trim() === c.nom.toLowerCase().trim(); 
         });
         if (existing) {
           existing.total = c.total;
           existing.vendeur = vendeurNom;
+          existing.customerNo = c.customerNo || "";
+          existing.paiements = paiements;
+          // Update rec from BC if > 0, keep manual if BC has nothing
+          if (recBC > 0) {
+            existing.rec = recBC;
+            if (existing.st === "En attente") existing.st = "Recouvré";
+          }
           return existing;
         }
         return {
@@ -585,9 +611,11 @@ async function syncBC() {
           nom: c.nom,
           total: c.total,
           vendeur: vendeurNom,
-          rec: 0,
+          customerNo: c.customerNo || "",
+          paiements: paiements,
+          rec: recBC,
           prev: 0,
-          st: "En attente",
+          st: recBC > 0 ? "Recouvré" : "En attente",
           note: ""
         };
       });
