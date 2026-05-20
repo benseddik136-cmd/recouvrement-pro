@@ -42,9 +42,11 @@ module.exports = async function(req, res) {
           const nom = c.displayName;
           const total = parseFloat(c.balanceDue) || 0;
           const vendeur = VENDEURS[String(c.salespersonCode)] || c.salespersonCode || "NON AFFECTÉ";
-          const customerNo = c.number || c.id || "";
+          
+          // Try all possible customer number fields
+          const customerNo = c.number || c.id || c.customerNumber || "";
 
-          // Get payments for this customer from Redis
+          // Get payments for this customer
           const customerPayments = paiements[customerNo] || {};
 
           return {
@@ -58,11 +60,18 @@ module.exports = async function(req, res) {
         .filter(c => c.total !== 0)
         .sort((a, b) => b.total - a.total);
 
+      // Debug: log first client to see structure
+      if (clients.length > 0) {
+        console.log('First client keys:', Object.keys(clients[0]));
+        console.log('First client:', JSON.stringify(clients[0]).substring(0, 200));
+      }
+
       await redis.set('clients', result);
 
       return res.status(200).json({
         success: true,
         count: result.length,
+        sample: result.length > 0 ? result[0] : null,
         updated: new Date().toISOString()
       });
 
