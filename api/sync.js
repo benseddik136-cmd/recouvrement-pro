@@ -33,23 +33,39 @@ module.exports = async function(req, res) {
       const data = req.body || {};
       const clients = data.value || [];
 
+      // Get payments from Redis
+      const paiements = await redis.get('paiements') || {};
+
       const result = clients
         .filter(c => c.displayName && c.displayName.trim() !== '')
-        .map(c => ({
-          nom: c.displayName,
-          total: parseFloat(c.balanceDue) || 0,
-          vendeur: VENDEURS[String(c.salespersonCode)] || c.salespersonCode || "NON AFFECTÉ"
-        }))
+        .map(c => {
+          const nom = c.displayName;
+          const total = parseFloat(c.balanceDue) || 0;
+          const vendeur = VENDEURS[String(c.salespersonCode)] || c.salespersonCode || "NON AFFECTÉ";
+          const customerNo = c.number || c.id || "";
+
+          // Get payments for this customer from Redis
+          const customerPayments = paiements[customerNo] || {};
+
+          return {
+            nom,
+            total,
+            vendeur,
+            customerNo,
+            paiements: customerPayments
+          };
+        })
         .filter(c => c.total !== 0)
         .sort((a, b) => b.total - a.total);
 
       await redis.set('clients', result);
 
-      return res.status(200).json({ 
-        success: true, 
+      return res.status(200).json({
+        success: true,
         count: result.length,
-        updated: new Date().toISOString() 
+        updated: new Date().toISOString()
       });
+
     } catch (e) {
       return res.status(400).json({ error: e.message });
     }
@@ -58,8 +74,8 @@ module.exports = async function(req, res) {
   if (req.method === 'GET') {
     try {
       const clients = await redis.get('clients') || [];
-      return res.status(200).json({ 
-        success: true, 
+      return res.status(200).json({
+        success: true,
         clients: clients,
         updated: new Date().toISOString()
       });
